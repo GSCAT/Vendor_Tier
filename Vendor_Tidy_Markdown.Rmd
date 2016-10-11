@@ -1,0 +1,118 @@
+---
+title: "Using Tidyr to Clean Vendor Data Table"
+output:
+  html_document:
+    fig_width: 6
+    highlight: tango
+    theme: yeti
+  pdf_document: null
+---
+***
+
+# Setting up the Environment
+
+We start by loading the proper Libraries.
+
+```{r message=FALSE, warning=FALSE, error=FALSE}
+library(dplyr)
+library(tidyr)
+library(readr)
+library(xtable)
+
+```
+
+Next, define a path to the target directory. Don't worry about the file name, we will use `dirname()` to trim to the filename from the directory when necessary. 
+
+```{r message=FALSE, warning=FALSE, error=FALSE}
+path <- file.path('~', 'Executive Dashboard', 'Q2 2016', 'Vendor', 'my_file.csv')
+dirname(path)
+```
+
+This gives us a path string to to the above directory.
+
+# Importing the Data
+
+Next we read the file to a data table with the following code. 
+
+```{r  tidy=TRUE}
+Parent_Vendor_Table <- read_csv(paste(dirname(path), 
+                                      'Parent Child Vendors with Tier 20160730.csv', 
+                                      sep = '/'))
+```
+
+# The Raw Data
+In order to reduce work and minimize error, it is important to present __GIS__ with a clean and concise table for which to manage the _Vendor_ _Tiering_ Status. This is best accomplihsed with a concise table in which each vendor has one row; and the tiering status is contained in a single column per catagory. This table\-\-though concise and porper for human readability\-\-is not conducive to joining in a database environment. Have a look at a sample of the raw table:
+
+```{r echo=FALSE, results='asis', message=FALSE,warning=FALSE, tidy=TRUE}
+
+a_table <- Parent_Vendor_Table %>% 
+  sample_n(10, replace=TRUE) %>% 
+  select(-(1:4))
+
+knitr::kable(a_table, format="markdown")
+
+# # png("test.png")
+# par(mfrow=c(2,2))
+# par(mar=c(2,2,2,2))
+# plot(cars)
+# plot(cars)
+# plot(cars)
+# plot(cars)
+# 
+# par(mfrow=c(1,2))
+# plot(mtcars)
+# plot(mtcars)
+
+
+# ![]("test.png")
+
+
+
+
+```
+
+Not all columns are shown above, but you can see that there are separate columns for _Wovens_, _Knits_, etc. they cleanest way to store these data in a database would (for joining) would be to convert these multiple column values into a single column with a type. That is where `tidyr` comes in!
+
+# Tydying the Data
+
+We can gather the Category columns, into a value and key pair, very easily with the `tidyr` package. Using `tidyr::gather()` we can _gather_ the multiple columns into a a value and key column using the code below.
+
+```{r}
+Parent_vendor_Master <- Parent_Vendor_Table %>% 
+  select(-(1:4)) %>% 
+  gather("Category", "Tier", 
+         Wovens, Sweaters, Knits, IP, 
+         `Denim & Woven Bottoms`, `Category Other`, 
+         Accessories, `3P & Lic`)
+
+Parent_vendor_Master %>% slice(c(1:7, 11:13)) %>% knitr::kable()
+```
+
+Notice there are now two columns labeled _Category_ and _Tier_. The Category columns have been gathered into a value and key pair. This is a much better form in which to store our data. However, there are NA's in this table that we do not need. So let's remove them! We do this by adding `na.rm = True` to our previous code.  
+
+```{r}
+Parent_vendor_Master2 <- Parent_Vendor_Table %>% 
+  select(-(1:4)) %>% 
+  gather("Category", "Tier", 
+         Wovens, Sweaters, Knits, IP, `Denim & Woven Bottoms`, 
+         `Category Other`, Accessories, `3P & Lic`, na.rm=TRUE)
+
+Parent_vendor_Master2 %>% slice(c(1:7, 11:13))%>%
+knitr::kable()
+```
+
+Let's just make sure we do not have any non-distinct rows. 
+
+```{r}
+Parent_vendor_Master2 <- Parent_Vendor_Table %>% 
+  select(-(1:4)) %>% 
+  gather("Category", "Tier", Wovens, Sweaters, Knits, IP, `Denim & Woven Bottoms`, 
+         `Category Other`, Accessories, `3P & Lic`, na.rm=TRUE) %>% distinct()
+
+Parent_vendor_Master2 %>% slice(1:10) %>%
+  knitr::kable()
+```
+
+
+How cool is that!
+
