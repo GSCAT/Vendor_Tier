@@ -46,3 +46,7 @@ write.xlsx(Output_table, paste(my_dir, "Vendor_Workbook.xlsx", sep = "/"), sheet
 
 
 colSums(Output_table[, -c(1:6)], na.rm = TRUE)
+
+# Anti-Join table
+anti_join_table <- anti_join(Vendor_Tier_Table, Delim_Table,  by = c('MasterVendorID', 'Category', "PAR_VENDOR_ID", "VENDOR_ID"))
+write.xlsx(anti_join_table, paste(my_dir, "Vendor_Workbook.xlsx", sep = "/"), sheetName = "New Vendors", append= TRUE, showNA = FALSE)
