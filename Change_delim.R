@@ -2,6 +2,7 @@ library(dplyr)
 library(tidyr)
 library(readr)
 library(rChoiceDialogs)
+library(xlsx)
 
 choose_file_directory <- function()
 {
@@ -9,6 +10,7 @@ choose_file_directory <- function()
   return(v)
 }
 
+my_dir <- choose_file_directory()
 
 Delim_Table <- read_csv(paste(choose_file_directory(), 'my_clean_table 20160815.csv' , sep = '/'))
 
@@ -38,7 +40,9 @@ Join_table <- left_join(Delim_Table, Vendor_Tier_Table, by = c('MasterVendorID',
 
 Output_table <- Join_table %>% select(c(1:6,11)) %>% spread(Category, Total_FCST_ELC )
 Output_table2 <- Join_table %>% select(1:8) %>% spread(Category, "Tier")
-  
+
+write.xlsx(Output_table2, paste(my_dir, "Vendor_Workbook.xlsx", sep = "/"), sheetName = "Tiering",  showNA = FALSE)
+write.xlsx(Output_table, paste(my_dir, "Vendor_Workbook.xlsx", sep = "/"), sheetName = "ELC", append= TRUE, showNA = FALSE)
 
 
 colSums(Output_table[, -c(1:6)], na.rm = TRUE)
