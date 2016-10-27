@@ -4,13 +4,14 @@ library(readr)
 library(rChoiceDialogs)
 
 # Sys.setenv(JAVA_HOME='C:\\Program Files\\Java\\jre6')
-library(rJava)
+# library(rJava)
 
 choose_file_directory <- function()
 {
   v <- jchoose.dir()
   return(v)
 }
+
 
 
 Parent_Vendor_Table <- read_csv(paste(choose_file_directory(), 'Parent Child Vendors with Tier 20160805.csv' , sep = '/'))
