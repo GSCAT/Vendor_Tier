@@ -18,6 +18,8 @@ Delim_Table <- mutate(Delim_Table, "Date_modified" = as.Date('2016-08-15'))
 Delim_Table <- Delim_Table %>% mutate(Category=replace(Category, Category=="Denim & Woven Bottoms", 'Denim and Woven Bottoms'))
 write_delim(Delim_Table, paste(choose_file_directory(), 'Vendor_Tier_table 20160815.txt', sep='/'), delim ='^')
 
+######## Need to persist Legacy Vendor ID
+
 Vendor_ELC_table <- read_delim(paste(choose_file_directory(), 'Master_Vendor_with_ELC.txt', sep = '/'), delim = '^')
 
 # Tidying data
