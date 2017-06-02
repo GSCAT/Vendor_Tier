@@ -14,7 +14,7 @@ choose_file_directory <- function()
 
 path <- choose_file_directory()
 
-Parent_Vendor_Table <- read_csv(paste(choose_file_directory(), 'Parent Child Vendors with Tier 20161027.csv' , sep = '/'))
+Parent_Vendor_Table <- read_csv(paste(choose_file_directory(), 'Vendor_Workbook_Kevin_w_LGCY_ID_v5.csv' , sep = '/'))
 # View(Parent_Vendor_Table)
 
 # path <- file.path('~', 'Executive Dashboard', 'Q2 2016', 'Vendor', '2016_08_08', 'my_file.csv')
@@ -23,7 +23,7 @@ Parent_Vendor_Table <- read_csv(paste(choose_file_directory(), 'Parent Child Ven
 # View(Parent_Vendor_Table)
 
 Parent_Vendor_Table <- Parent_Vendor_Table %>%
-  select(MasterVendorID, PAR_VENDOR_ID, PAR_VENDOR_LEGAL_DESC, VENDOR_ID, 
+  select(MasterVendorID, PAR_VENDOR_ID, PAR_VENDOR_LEGAL_DESC, VENDOR_ID, VENDOR_LGCY_ID,
          VENDOR_LEGAL_DESC, Wovens, Sweaters, Knits, IP, 
          `Denim & Woven Bottoms`, `Category Other`, Accessories, `3P & Lic`)
 
