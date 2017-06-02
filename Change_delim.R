@@ -12,22 +12,23 @@ choose_file_directory <- function()
 
 my_dir <- choose_file_directory()
 
-Delim_Table <- read_csv(paste(choose_file_directory(), 'my_clean_table 20160815.csv' , sep = '/'))
+# Delim_Table <- read_csv(paste(choose_file_directory(), 'VendorMaster.csv' , sep = '/'))
+Delim_Table <- read_delim(paste(choose_file_directory(), 'Vendor_Tier_LR.txt' , sep = '/'), delim = "^")
 
-Delim_Table <- mutate(Delim_Table, "Date_modified" = as.Date('2016-08-15'))
+Delim_Table <- mutate(Delim_Table, "Date_modified" = as.Date('2016-11-11'))
 Delim_Table <- Delim_Table %>% mutate(Category=replace(Category, Category=="Denim & Woven Bottoms", 'Denim and Woven Bottoms'))
-write_delim(Delim_Table, paste(choose_file_directory(), 'Vendor_Tier_table 20160815.txt', sep='/'), delim ='^')
+write_delim(Delim_Table, paste(my_dir, 'Vendor_Tier_table 20170424.txt', sep='/'), delim ='^')
 
 ######## Need to persist Legacy Vendor ID
 
-Vendor_ELC_table <- read_delim(paste(choose_file_directory(), 'Master_Vendor_with_ELC.txt', sep = '/'), delim = '^')
+Vendor_ELC_table <- read_delim(paste(choose_file_directory(), 'SQLAExport.txt', sep = '/'), delim = '^')
 
 # Tidying data
 spread_Vendor_ELC_table <- Vendor_ELC_table %>%
                             mutate(Total_FCST_ELC = as.character(Vendor_ELC_table$Total_FCST_ELC))%>%
                               spread(Category,  value= Total_FCST_ELC)
 
-nm_vec <- names(spread_Vendor_ELC_table)[1:5]
+nm_vec <- names(spread_Vendor_ELC_table)[1:6]
 spread_Vendor_ELC_table <- spread_Vendor_ELC_table[c(nm_vec,'Wovens', 'Sweaters', 'Knits', 'IP', 'Denim and Woven Bottoms', 'Category Other', 'Accessories', '3P & Lic')]
 
 # Table with ELC
@@ -40,8 +41,9 @@ Vendor_Tier_Table <- Vendor_ELC_table
 
 Join_table <- left_join(Delim_Table, Vendor_Tier_Table, by = c('MasterVendorID', 'Category', "PAR_VENDOR_ID", "VENDOR_ID"))
 
-Output_table <- Join_table %>% select(c(1:6,11)) %>% spread(Category, Total_FCST_ELC )
-Output_table2 <- Join_table %>% select(1:8) %>% spread(Category, "Tier")
+Output_table <- Join_table %>% select(c(1:9,13)) %>% 
+  spread(`Category`, `Total_FCST_ELC`)
+Output_table2 <- Join_table %>% select(1:9) %>% spread(Category, "Tier")
 
 write.xlsx(Output_table2, paste(my_dir, "Vendor_Workbook.xlsx", sep = "/"), sheetName = "Tiering",  showNA = FALSE)
 write.xlsx(Output_table, paste(my_dir, "Vendor_Workbook.xlsx", sep = "/"), sheetName = "ELC", append= TRUE, showNA = FALSE)
